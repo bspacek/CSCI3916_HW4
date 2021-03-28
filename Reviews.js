@@ -9,7 +9,6 @@ try {
 }catch (error) {
     console.log("could not connect");
 }
-//mongoose.set('useCreateIndex', true);
 
 var ReviewSchema = new Schema({
     userReview: { type: String, required: true},
@@ -20,6 +19,4 @@ var ReviewSchema = new Schema({
 
 ReviewSchema.index({title: 1, username: 1}, {unique: true});
 
-
-// return the model
 module.exports = mongoose.model('Review', ReviewSchema);

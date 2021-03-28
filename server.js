@@ -93,31 +93,15 @@ router.route('/movies')
     .get(authJwtController.isAuthenticated, function (req, res) {
 
         if (req.query.reviews === 'true') {
-            Movie.aggregate([
-                {
-                    $lookup: {
-                        from: 'reviews',
-                        localField: 'movieTitle',
-                        foreignField: 'title',
-                        as: 'reviews'
-                    }
-                },
-
-                {
-                    $project: {
-                        movieTitle: 1,
-                        yearReleased: 2,
-                        genre: 3,
-                        actors: 4,
-                        review: '$reviews'
-                    }
-                }
-            ])
-                .exec(function(err,doc) {
-                    if (err)
-                        res.status(400).send(err);
-                    else
-                        res.json(doc);
+            Movie.aggregate()
+                .lookup({
+                    from: 'reviews',
+                    localField: 'title',
+                    foreignField: 'title',
+                    as: 'reviews'
+                })
+                .exec(function(err, result) {
+                    res.send(result);
                 })
         }
 
@@ -196,35 +180,33 @@ router.route('/movies')
         }
     )
 
-
 router.route('/reviews')
-    .get(authJwtController.isAuthenticated, function (req, res) {
-        console.log(req.body);
-
+    .get(authJwtController.isAuthenticated, function(req,res) {
         Review.find(function (err, review) {
-            if(err){
-                res.send(err);
-            }
-            else{
-                res.json(review);
-            }
+            if (err) res.json({success: false, message: "Error returning movies."});
+            res.json(review);
         })
     })
+
     .post(authJwtController.isAuthenticated, function(req,res){
         console.log(req.body);
 
         if(!req.body.userReview || !req.body.rating || !req.body.title){
 
-            return res.json({success: false, message: 'Request must include title, rating, and a review.'});
+            res.json({success: false, message: 'Request must include title, rating, and a review.'});
 
         }
 
         Movie.findOne({title: req.body.title}, function (err, movie) {
 
             if(err) {
-                return res.json({success: false, message: 'Cannot find movie.'});
+                res.send(err);
             }
-            else{
+            else if (!movie) {
+                res.json({success: false, message: 'Cannot find movie.'});
+            }
+
+            else {
 
                 var review = new Review();
 
@@ -245,7 +227,7 @@ router.route('/reviews')
                         res.json(err);
                     }
                     else{
-                        return res.json({ success: true, message: 'Review saved.' })
+                        res.json({ success: true, message: 'Review saved.' })
                     }
                 })
             }
