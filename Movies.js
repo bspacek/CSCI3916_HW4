@@ -18,6 +18,7 @@ var MovieSchema = new Schema({
     title:{type:String,required:true,index:{unique:true}},
     yearReleased:{type:Date, required:true},
     genre:{type:String,required:true},
-    actors: { type:[{actorName: String, characterName: String}], required: true }
+    actors: { type:[{actorName: String, characterName: String}], required: true },
+    imgURL: {type:String}
 });
 module.exports = mongoose.model('Movie',MovieSchema);
