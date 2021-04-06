@@ -181,6 +181,62 @@ router.route('/movies')
         }
     )
 
+router.route('/movies/:movieId')
+    .get(authJwtController.isAuthenticated, function (req, res) {
+        var getReview;
+
+        if(req.query.reviews === "true"){
+            getReview = true;
+        }
+
+        var id = req.params.movieId;
+
+        Movie.findById( id, function(err, movie) {
+            if (err) res.send(err);
+            else{
+                if(getReview){
+                    Movie.aggregate([
+                        {
+                            $match: {'_id': mongoose.Types.ObjectId(id)}
+                        },
+                        {
+                            $lookup:{
+                                from: 'reviews',
+                                foreignField: 'movieId',
+                                localField: '_id',
+                                as: 'reviews'
+                            }
+                        },
+                        {
+                            $addFields: {
+                                avgRating: { $avg: "$reviews.rating" }
+                            }
+                        },
+                        {
+                            $sort:{
+                                rating : -1
+                            }
+                        }
+                    ], function (err, output) {
+                        if(err){
+                            return res.json({ success: false, message: 'Error' })
+                        }
+                        else{
+                            res.json(output[0]);
+                        }
+                    })
+                }
+                else{
+                    if(movie !== null) {
+                        return res.json(movie);
+                    } else {
+                        return res.json({ success: false, message: 'Movie not found.' })
+                    }
+                }
+            }
+        });
+    });
+
 router.route('/reviews')
     .get(authJwtController.isAuthenticated, function(req,res) {
         Review.find(function (err, review) {
