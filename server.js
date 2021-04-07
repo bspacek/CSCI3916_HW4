@@ -213,7 +213,6 @@ router.route('/movies/:movieId')
                         return res.json({ success: false, message: 'Movie not found.' })
                     }
                 }
-            }
         });
     });
 
