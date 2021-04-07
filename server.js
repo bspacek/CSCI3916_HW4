@@ -177,7 +177,7 @@ router.route('/movies/:movieId')
         Movie.findById( id, function(err, movie) {
             if (err) res.send(err);
             else{
-                if(getReview){
+                if(movie != null){
                     Movie.aggregate([
                         {
                             $match: {'_id': mongoose.Types.ObjectId(id)}
@@ -210,9 +210,6 @@ router.route('/movies/:movieId')
                     })
                 }
                 else{
-                    if(movie !== null) {
-                        return res.json(movie);
-                    } else {
                         return res.json({ success: false, message: 'Movie not found.' })
                     }
                 }
