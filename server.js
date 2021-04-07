@@ -166,11 +166,6 @@ router.route('/movies')
 
 router.route('/movies/:movieId')
     .get(authJwtController.isAuthenticated, function (req, res) {
-        var getReview;
-
-        if(req.query.reviews === "true"){
-            getReview = true;
-        }
 
         var id = req.params.movieId;
 
@@ -205,17 +200,17 @@ router.route('/movies/:movieId')
                             return res.json({ success: false, message: 'Error' })
                         }
                         else{
+                            console.log(output[0]);
                             res.json(output[0]);
                         }
                     })
                 }
                 else{
-                        return res.json({ success: false, message: 'Movie not found.' })
-                    }
+                    return res.json({ success: false, message: 'Movie not found.' })
                 }
+            }
         });
     });
-
 router.route('/reviews')
     .get(authJwtController.isAuthenticated, function(req,res) {
         Review.find(function (err, review) {
