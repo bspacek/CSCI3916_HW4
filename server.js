@@ -10,6 +10,7 @@ var passport = require('passport');
 var authJwtController = require('./auth_jwt');
 var jwt = require('jsonwebtoken');
 var cors = require('cors');
+var mongoose = require('mongoose')
 
 var User = require('./Users');
 var Movie = require('./Movies');
@@ -23,24 +24,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 
 var router = express.Router();
-
-function getJSONObjectForMovieRequirement(req) {
-    var json = {
-        headers: "No headers",
-        key: process.env.UNIQUE_KEY,
-        body: "No body"
-    };
-
-    if (req.body != null) {
-        json.body = req.body;
-    }
-
-    if (req.headers != null) {
-        json.headers = req.headers;
-    }
-
-    return json;
-}
 
 router.post('/signup', function(req, res) {
     if (!req.body.username || !req.body.password) {
@@ -170,7 +153,7 @@ router.route('/movies')
                 res = res.type(req.get('Content-Type'));
             }
 
-            Movie.findOneAndUpdate({title: req.body.title}, req.body, function (err, mov) {
+            Movie.findOneAndUpdate({title: req.body.title}, req.body, function (err) {
                 if (err)
                 {
                     return res.status(400).json(err);
