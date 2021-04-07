@@ -75,8 +75,13 @@ router.route('/movies')
     // Return all movies in the DB.
     .get(authJwtController.isAuthenticated, function (req, res) {
 
-//        if (req.query.reviews === 'true') {
-        if (req) {
+        if (req.query.reviews === 'false') {
+            Movie.find(function (err, movie) {
+                if (err) res.json({success: false, message: "Error returning movies."});
+                res.json(movie);
+            })
+        }
+        else{
             Movie.aggregate([
                 {$match:{}},
                 {
@@ -85,7 +90,6 @@ router.route('/movies')
                         foreignField: 'title',
                         localField: 'title',
                         as: 'reviews'
-
                     }
                 },
                 {
@@ -107,38 +111,10 @@ router.route('/movies')
                 else{
                     res.json(output);
                 }
-
-            })
-        }
-        else{
-            res.json(movie);
-        }
-    })
-
-
-            /*
-            Movie.aggregate()
-
-                .lookup({
-                    from: 'reviews',
-                    localField: 'title',
-                    foreignField: 'title',
-                    as: 'reviews'
-                })
-                .exec(function(err, result) {
-                    res.send(result);
-                })
-        }
-
-        else {
-            Movie.find(function (err, movie) {
-                if (err) res.json({success: false, message: "Error returning movies."});
-                res.json(movie);
             })
         }
     })
 
-             */
 
     // Save a new movie to the database
     .post(authJwtController.isAuthenticated, function (req, res) {
